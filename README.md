@@ -11,6 +11,7 @@ Example Laravel v8 E-Commerce
 - clone this repository
 - composer install
 - npm install && npm run dev
+- create database with name: laravel
 - import sql file at folder database
 - copy .env.example to .env
 - php artisan storage:link
