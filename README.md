@@ -18,6 +18,7 @@ Example Laravel v8 E-Commerce
 * Add Product, Product Images Temporary Inject From DB
 * For Back To Home click at Logo Laravel-ECom at left Top
 * For Temporary Orders Just Until The Order is Processed
+* Admin Pages Not Yet Created
 * Account:
     - admin:
         - email: admin@mail.com
