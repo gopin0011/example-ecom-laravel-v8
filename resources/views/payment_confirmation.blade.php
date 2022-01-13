@@ -128,7 +128,7 @@
                       <div class="col-md-4 background-muted">
                           <div class="p-3 border-bottom">
                               <div class="mt-3">
-                                  <h6 class="mb-0">Tanggal Order: {{$order->created_at}}</h6>
+                                  <h6 class="mb-0">Tanggal Order: {{date('d-m-Y, H:i', strtotime($order->created_at))}}</h6>
                                   <div style="margin-top: 20px;"></div>
                                   <span class="d-block mb-0">Detail Pengiriman</span>
                               </div>
