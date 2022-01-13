@@ -12,6 +12,7 @@ Example Laravel v8 E-Commerce
 - composer install
 - npm install && npm run dev
 - import sql file at folder database
+- copy .env.example to .env
 - php artisan serve
 
 ## Note
