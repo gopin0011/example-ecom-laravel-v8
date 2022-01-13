@@ -85,14 +85,14 @@
                             <div class="accordion-body fs-sm">
                               <div class="d-flex justify-content-between border-bottom pb-2">
                                 <div>
-                                  <div class="fw-semibold text-dark">Pulau Jawa</div>
+                                  <div class="fw-semibold text-dark">Jawa Barat</div>
                                   <div class="fs-sm text-muted">2 - 6 hari</div>
                                 </div>
                                 <div>Rp. {{number_format('20000')}}</div>
                               </div>
                               <div class="d-flex justify-content-between border-bottom py-2">
                                 <div>
-                                  <div class="fw-semibold text-dark">Luar Pulau Jawa</div>
+                                  <div class="fw-semibold text-dark">Selain Jawa Barat</div>
                                   <div class="fs-sm text-muted">> 7 hari</div>
                                 </div>
                                 <div>Rp. {{number_format('40000')}}</div>
