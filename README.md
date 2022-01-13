@@ -13,6 +13,7 @@ Example Laravel v8 E-Commerce
 - npm install && npm run dev
 - import sql file at folder database
 - copy .env.example to .env
+- php artisan storage:link
 - php artisan serve
 
 ## Note
@@ -20,13 +21,13 @@ Example Laravel v8 E-Commerce
 * For Back To Home click at Logo Laravel-ECom at left Top
 * For Temporary Orders Just Until The Order is Processed
 * Admin Pages Not Yet Created
-* Account:
+* Create New Account at register page
+* Existing Account:
     - admin:
         - email: admin@mail.com
         - password: 12345678
     - erfin:
         - email: gopin.ipin@gmail.com
         - password: 12345678
-
 ## Author
 gopin.ipin@gmail.com
