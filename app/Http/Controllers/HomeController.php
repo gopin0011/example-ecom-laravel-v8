@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\DB;
 class HomeController extends Controller
 {
     public $cartCount;
+
+    public $back;
+
     /**
      * Create a new controller instance.
      *
@@ -23,7 +26,8 @@ class HomeController extends Controller
 
     public function __construct()
     {
-        // $this->middleware('auth');
+        $this->back = redirect()->getUrlGenerator()->previous();
+        // blade url()->previous()
     }
 
     /**
@@ -46,6 +50,7 @@ class HomeController extends Controller
                     ->get();
             }
         }
+
         return view('home', [
             'products' => $products,
             'order' => $request->order ? $request->order : 'desc',
@@ -56,20 +61,17 @@ class HomeController extends Controller
     public function product(Product $id)
     {
         $images = ProductImages::where('product_id', $id->id)->get();
+
         return view('product_detail', [
             'product' => $id,
             'images' => $images,
+            'back' => $this->back,
         ]);
     }
 
     public function productAdd(Request $request, Product $id, $from = '')
     {
-        $this->middleware('auth');
         $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('product', [$id]);
-        }
 
         $product = Product::find($id->id);
 
@@ -92,42 +94,32 @@ class HomeController extends Controller
             $cart->save();
         }
 
-        notify()->success('Sukses Menambahkan ke Troli!');
-
-        if ($from == 'home')
-            return redirect()->route('home');
-            
-        return redirect()->route('product', [$id]);
+        return redirect()->back()->with('success', 'Success! Product Added');
     }
 
     public function cart()
     {
-        $this->middleware('auth');
         $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('home');
-        }
 
-        $product = DB::table('cart')
+        $query = DB::table('cart')
             ->join('product', 'cart.product_id', '=', 'product.id')
             ->select('*', 'cart.id as cartId')
-            ->where(['users_id' => $user->id, 'has_order' => 0])
-            ->get();
+            ->where(['users_id' => $user->id, 'has_order' => 0]);
+        
+        $product = $query
+                    ->get();
+        
+        $total = $query
+            ->sum('cart.total');
 
         return view('cart', [
             'products' => $product,
+            'total' => $total,
         ]);
     }
 
     public function cartUpdate(Request $request)
     {
-        $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('home');
-        }
-
         foreach ($request->id as $key => $value)
         {
             $cart = Cart::find($value);
@@ -139,34 +131,20 @@ class HomeController extends Controller
             $cart->save();
         }
 
-        notify()->success('Troli Telah Di Update!');
-
-        return redirect()->route('cart');
+        return redirect()->back()->with('success', 'Success! Update Troli');
     }
 
     public function cartProductDelete(Cart $id)
     {
-        $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('home');
-        }
-
         $cart = Cart::find($id->id);
         $cart->delete();
 
-        notify()->success('Item Telah Di Hapus!');
-
-        return redirect()->route('cart');
+        return redirect()->back()->with('success', 'Success! Update Troli');
     }
 
     public function checkout()
     {
         $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('home');
-        }
 
         $product = DB::table('cart')
             ->join('product', 'cart.product_id', '=', 'product.id')
@@ -213,10 +191,6 @@ class HomeController extends Controller
     public function checkoutCreate(Request $request)
     {
         $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('home');
-        }
 
         $request->validate([
             'recipients_name' => 'required|string',
@@ -280,7 +254,6 @@ class HomeController extends Controller
             $oldCart->save();
         }
 
-        notify()->success('Hi '.Auth::user()->name.'. Terimakasih, Pesanan Anda Telah di Buat dan Akan Kami Proses Secepatnya. Silahkan Lakukan Konfirmasi Pembayaran!');
-        return redirect()->route('paymentConfirmation');
+        return redirect()->route('orders')->with('success', 'Hi '.Auth::user()->name.'. Terimakasih, Pesanan Anda Telah di Buat dan Akan Kami Proses Secepatnya. Silahkan Lakukan Konfirmasi Pembayaran!');
     }
 }

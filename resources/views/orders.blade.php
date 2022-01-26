@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('content')
 <div class="container">
-    <div class="col-md-2">
-        <a class="btn btn-warning d-block w-100 mt-4" href="javascript:history.back()"><i class="ci-loading fs-base me-2"></i>Kembali</a>
+    <div class="bg-light shadow-lg rounded-3">
+    {{ Breadcrumbs::render('orders') }}
     </div>
     <div style="margin-top:20px;"></div>
     <div class="bg-light shadow-lg rounded-3">
@@ -21,25 +21,23 @@
                         <div class="row">
                             <div class="col-lg-5 pe-lg-0">
                                 <!-- List Order -->
-                                <div class="col-lg-7 pe-lg-0">
-                                    <div class="py-2 px-xl-2">
-                                        <div class="widget mb-3">
-                                            <h1 class="widget-title"><b>Order Detail</b></h1>
-                                            @foreach ($order->orderDetail as $product)
-                                            <div class="d-flex align-items-center pb-2 border-bottom"><a class="d-block flex-shrink-0" href="{{ route('product', ['id' => $product->product_id]) }}"><img src="{{ asset('storage/' . $product->product_thumbnail) }}" width="64" alt="Product"></a>
-                                                <div class="ps-2">
-                                                    <h6 class="widget-product-title"><a href="{{ route('product', ['id' => $product->product_id]) }}">{{$product->product_name}}</a></h6>
-                                                    <div class="widget-product-meta"><span class="text-accent me-2">Rp. {{number_format($product->product_price)}}</span><span class="text-muted">x {{$product->qty}}</span></div>
-                                                </div>
+                                <div class="py-2 px-xl-2">
+                                    <div class="widget mb-3">
+                                        <h1 class="h6 widget-title"><b>Order Detail</b></h1>
+                                        @foreach ($order->orderDetail as $product)
+                                        <div class="d-flex align-items-center pb-2 border-bottom"><a class="d-block flex-shrink-0" href="{{ route('product', ['id' => $product->product_id]) }}"><img src="{{ asset('storage/' . $product->product_thumbnail) }}" width="64" alt="Product"></a>
+                                            <div class="ps-2">
+                                                <h6 class="widget-product-title"><a href="{{ route('product', ['id' => $product->product_id]) }}">{{$product->product_name}}</a></h6>
+                                                <div class="widget-product-meta"><span class="text-accent me-2">Rp. {{number_format($product->product_price)}}</span><span class="text-muted">x {{$product->qty}}</span></div>
                                             </div>
-                                            @endforeach
                                         </div>
-                                        <ul class="list-unstyled fs-sm pb-2 border-bottom">
-                                            <li class="d-flex justify-content-between align-items-center"><span class="me-2">Subtotal:</span><span class="text-end" id="subTotal">Rp. {{number_format($order->sub_total)}}</span></li>
-                                            <li class="d-flex justify-content-between align-items-center"><span class="me-2">Ongkos Kirim:</span><span class="text-end" id="ongkir">Rp. {{number_format($order->delivery_amount)}}</span></li>
-                                        </ul>
-                                        <h3 class="fw-normal text-center my-4" id="total">Rp. {{number_format($order->total)}}</h3>
+                                        @endforeach
                                     </div>
+                                    <ul class="list-unstyled fs-sm pb-2 border-bottom">
+                                        <li class="d-flex justify-content-between align-items-center"><span class="me-2">Subtotal:</span><span class="text-end" id="subTotal">Rp. {{number_format($order->sub_total)}}</span></li>
+                                        <li class="d-flex justify-content-between align-items-center"><span class="me-2">Ongkos Kirim:</span><span class="text-end" id="ongkir">Rp. {{number_format($order->delivery_amount)}}</span></li>
+                                    </ul>
+                                    <h3 class="fw-normal text-center my-4" id="total">Rp. {{number_format($order->total)}}</h3>
                                 </div>
                             </div>
                             <!-- detail shipping -->
@@ -109,7 +107,7 @@
                           <div class="py-2 px-xl-2">
                             @foreach ($order->orderDetail as $product)
                               <div class="widget mb-3">
-                                <h1 class="widget-title"><b>Order Detail</b></h1>
+                                <h1 class="h6 widget-title"><b>Order Detail</b></h1>
                                 <div class="d-flex align-items-center pb-2 border-bottom"><a class="d-block flex-shrink-0" href="#"><img src="{{ asset('storage/' . $product->product_thumbnail) }}" width="64" alt="Product"></a>
                                     <div class="ps-2">
                                         <h6 class="widget-product-title"><a href="#">{{$product->product_name}}</a></h6>

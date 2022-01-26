@@ -14,20 +14,15 @@ class ProfileController extends Controller
         // $this->middleware('auth');
     }
 
-    public function paymentConfirmation()
+    public function orders()
     {
-        $this->middleware('auth');
         $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('paymentConfirmation');
-        }
 
         $pendingPayments = Orders::allListOrder($user);
 
         $orders = Orders::allListOrder($user, $order = null, $status = 1);
 
-        return view('payment_confirmation', [
+        return view('orders', [
             'pendingPayments' => $pendingPayments,
             'orders' => $orders,
         ]);
@@ -35,12 +30,7 @@ class ProfileController extends Controller
 
     public function payment(Orders $order)
     {
-        $this->middleware('auth');
         $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('paymentConfirmation');
-        }
 
         $pendingPayments = Orders::allListOrder($user, $order);
 
@@ -52,10 +42,6 @@ class ProfileController extends Controller
     public function paymentCreate(Request $request, Orders $order)
     {
         $user = Auth::user();
-        if(!$user) {
-            notify()->warning('Hi, Kamu Harus Login Terlebih Dahulu!');
-            return redirect()->route('paymentConfirmation');
-        }
 
         $request->validate([
             'senders_account' => 'required|string',
@@ -75,8 +61,8 @@ class ProfileController extends Controller
         $order->status = 1;
         $order->save();
 
-        notify()->success('Terimakasih, Kami Akan Segera Memproses Pesanan Anda!');
-        return redirect()->route('paymentConfirmation');
+        // notify()->success('Terimakasih, Kami Akan Segera Memproses Pesanan Anda!');
+        return redirect()->route('orders')->with('success', 'Terimakasih, Kami Akan Segera Memproses Pesanan Anda');
 
     }
 }

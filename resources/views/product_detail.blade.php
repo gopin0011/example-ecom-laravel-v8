@@ -1,11 +1,54 @@
 @extends('layouts.app')
 @section('content')
-
+<style>
+.carousel {
+  position: relative;
+}
+.carousel-item img {
+  object-fit: cover;
+}
+#carousel-thumbs {
+  background: rgba(255,255,255,.3);
+  bottom: 0;
+  left: 0;
+  padding: 0 50px;
+  right: 0;
+}
+#carousel-thumbs img {
+  border: 5px solid transparent;
+  cursor: pointer;
+}
+#carousel-thumbs img:hover {
+  border-color: rgba(255,255,255,.3);
+}
+#carousel-thumbs .selected img {
+  border-color: #fff;
+}
+.carousel-control-prev,
+.carousel-control-next {
+  width: 50px;
+}
+@media all and (max-width: 767px) {
+  .carousel-container #carousel-thumbs img {
+    border-width: 3px;
+  }
+}
+@media all and (min-width: 576px) {
+  .carousel-container #carousel-thumbs {
+    position: absolute;
+  }
+}
+@media all and (max-width: 576px) {
+  .carousel-container #carousel-thumbs {
+    background: #ccccce;
+  }
+}
+</style>
 <div class="container">
-    <div class="col-md-2">
-        <a class="btn btn-warning d-block w-100 mt-4" href="javascript:history.back()"><i class="ci-loading fs-base me-2"></i>Kembali</a>
+    <div class="bg-light shadow-lg rounded-3">
+    {{ Breadcrumbs::render('product', $product) }}
     </div>
-    <div style="margin-top:20px;"></div>
+        <div style="margin-top:20px;"></div>
         <div class="bg-light shadow-lg rounded-3">
           <!-- Tabs-->
           <ul class="nav nav-tabs" role="tablist">
@@ -17,39 +60,59 @@
               <!-- General info tab-->
               <div class="tab-pane fade active show" id="general" role="tabpanel">
                 <div class="row">
-                  <!-- Product gallery-->
-                  <div class="col-lg-7 pe-lg-0">
-                    <div class="product-gallery">
-                        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-                            <div class="carousel-indicators">
-                                @foreach($images as $key => $slider)
-                                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{$key}}" class="{{$key == 0 ? 'active' : '' }}" aria-current="{{$key == 0 ? 'true' : '' }}" aria-label="Slide {{$key+1}}"></button>
-                                @endforeach
+                  <div class="col-sm-8">
+                    <div class="row">
+                      <div class="container">
+                        <div class="carousel-container position-relative row">
+                          
+                        <!-- Sorry! Lightbox doesn't work - yet. -->
+                          
+                        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                          <div class="carousel-inner">
+                          @foreach($images as $key => $slider)
+                            <div class="carousel-item {{$key == 0 ? 'active' : '' }}" data-slide-number="{{$key}}">
+                              <img src="{{ asset('storage/' . $slider->url) }}" class="d-block w-100" alt="..." data-type="image" data-toggle="lightbox" data-gallery="example-gallery">
                             </div>
-                            <div class="carousel-inner">
-                                @foreach($images as $key => $slider)
-                                    <div class="carousel-item {{$key == 0 ? 'active' : '' }}">
-                                        <img src="{{ asset('storage/' . $slider->url) }}" class="d-block w-100" alt="...">
-                                    </div>
-                                @endforeach
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
+                          @endforeach
+                          </div>
                         </div>
+
+                        <!-- Carousel Navigation -->
+                        <div id="carousel-thumbs" class="carousel slide" data-ride="carousel">
+                          <div class="carousel-inner">
+                            <div class="carousel-item active">
+                              <div class="row mx-0">
+                              @foreach($images as $key => $slider)
+                                <div id="carousel-selector-{{$key}}" class="thumb col-4 col-sm-3 px-1 py-3 {{$key == 0 ? 'selected' : '' }}" data-target="#myCarousel" data-slide-to="{{$key}}">
+                                  <img src="{{ asset('storage/' . $slider->url) }}" class="img-fluid" alt="...">
+                                </div>
+                              @endforeach
+                              </div>
+                            </div>
+                          </div>
+                          <a class="carousel-control-prev" href="#carousel-thumbs" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                          </a>
+                          <a class="carousel-control-next" href="#carousel-thumbs" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                          </a>
+                        </div>
+
+                        </div> <!-- /row -->
+                      </div> <!-- /container -->
                     </div>
-                    <div class="pt-lg-3 pb-4 pb-sm-5">
-                            <h2 class="h3 pb-2">{{ $product->name }}</h2>
-                            {!! $product->description !!}
+                    <div class="row">
+                      <!-- product desc -->
+                      <div class="pt-lg-3 pb-4 pb-sm-5">
+                          <h2 class="h3 pb-2">{{ $product->name }}</h2>
+                          {!! $product->description !!}
+                      </div>
                     </div>
                   </div>
-                  <!-- Product details-->
-                  <div class="col-lg-5 pt-4 pt-lg-0">
+                  <div class="col-sm-4">
+                    <!-- product price -->
                     <div class="product-details ms-auto pb-3">
                       <div class="h5 fw-normal text-accent mb-3 me-1">{{$product->name}}</div>
                       <div class="h3 fw-normal text-accent mb-3 me-1">Rp. {{number_format($product->price)}}</div>
@@ -67,7 +130,7 @@
                                     <option value="4">4</option>
                                     <option value="5">5</option>
                                 </select>
-                                <button class="btn btn-primary btn-shadow d-block w-100 float-end" type="submit" {{$product->is_available == 1 ? '':'disabled'}}><i class="ci-cart fs-lg me-2"></i>Tambah ke Troli</button>
+                                <button class="btn btn-primary d-block w-100 float-end" type="submit" {{$product->is_available == 1 ? '':'disabled'}}>+ Troli</button>
                             </div>
                         </form>
                       </div>
@@ -293,4 +356,68 @@
           </div>
         </div>
       </div>
+@endsection
+@section('js')
+<script>
+$('#myCarousel').carousel({
+  interval: false
+});
+$('#carousel-thumbs').carousel({
+  interval: false
+});
+
+// handles the carousel thumbnails
+// https://stackoverflow.com/questions/25752187/bootstrap-carousel-with-thumbnails-multiple-carousel
+$('[id^=carousel-selector-]').click(function() {
+  var id_selector = $(this).attr('id');
+  var id = parseInt( id_selector.substr(id_selector.lastIndexOf('-') + 1) );
+  $('#myCarousel').carousel(id);
+});
+// Only display 3 items in nav on mobile.
+if ($(window).width() < 575) {
+  $('#carousel-thumbs .row div:nth-child(4)').each(function() {
+    var rowBoundary = $(this);
+    $('<div class="row mx-0">').insertAfter(rowBoundary.parent()).append(rowBoundary.nextAll().addBack());
+  });
+  $('#carousel-thumbs .carousel-item .row:nth-child(even)').each(function() {
+    var boundary = $(this);
+    $('<div class="carousel-item">').insertAfter(boundary.parent()).append(boundary.nextAll().addBack());
+  });
+}
+// Hide slide arrows if too few items.
+if ($('#carousel-thumbs .carousel-item').length < 2) {
+  $('#carousel-thumbs [class^=carousel-control-]').remove();
+  $('.machine-carousel-container #carousel-thumbs').css('padding','0 5px');
+}
+// when the carousel slides, auto update
+$('#myCarousel').on('slide.bs.carousel', function(e) {
+  var id = parseInt( $(e.relatedTarget).attr('data-slide-number') );
+  $('[id^=carousel-selector-]').removeClass('selected');
+  $('[id=carousel-selector-'+id+']').addClass('selected');
+});
+// when user swipes, go next or previous
+$('#myCarousel').swipe({
+  fallbackToMouseEvents: true,
+  swipeLeft: function(e) {
+    $('#myCarousel').carousel('next');
+  },
+  swipeRight: function(e) {
+    $('#myCarousel').carousel('prev');
+  },
+  allowPageScroll: 'vertical',
+  preventDefaultEvents: false,
+  threshold: 75
+});
+/*
+$(document).on('click', '[data-toggle="lightbox"]', function(event) {
+  event.preventDefault();
+  $(this).ekkoLightbox();
+});
+*/
+
+$('#myCarousel .carousel-item img').on('click', function(e) {
+  var src = $(e.target).attr('data-remote');
+  if (src) $(this).ekkoLightbox();
+});
+</script>
 @endsection

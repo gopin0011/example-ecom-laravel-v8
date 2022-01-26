@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="row">
-                    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                    <div id="carouselExampleIndicators" class="carousel slide container" data-bs-ride="carousel">
                         <div class="carousel-indicators">
                             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
                             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
@@ -14,13 +14,13 @@
                         </div>
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                            <img src="{{ asset('storage/ed3a549c-72c6-4f52-bbf1-b6e44da735b0.png') }}" class="d-block w-100" alt="...">
+                            <img src="{{ asset('storage/df39ac71-1b66-49b5-882e-3aab6eaf0dcf.jpeg') }}" class="d-block w-100" alt="...">
                             </div>
                             <div class="carousel-item">
                             <img src="{{ asset('storage/df39ac71-1b66-49b5-882e-3aab6eaf0dcf.jpeg') }}" class="d-block w-100" alt="...">
                             </div>
                             <div class="carousel-item">
-                            <img src="{{ asset('storage/616df725-64b7-4de8-b6c7-4d8d9fff7a68.png') }}" class="d-block w-100" alt="...">
+                            <img src="{{ asset('storage/df39ac71-1b66-49b5-882e-3aab6eaf0dcf.jpeg') }}" class="d-block w-100" alt="...">
                             </div>
                         </div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -67,15 +67,16 @@
                             </div>
                         @endif
                         <div class="row">
-                            <div class="col-lg-8 mx-auto">
+                            <div class="col-lg-10 mx-auto">
                                 <!-- List group-->
                                 <ul class="list-group shadow">
                                 @if(count($products))
                                     @foreach ($products as $product)
                                     <!-- produk -->
                                     <!-- list group item-->
-                                    <li class="list-group-item" style="cursor: pointer;" onclick="javascript:window.location.href='{{ route('product', ['id' => $product->id]) }}'">
+                                    <li class="list-group-item">
                                         <!-- Custom content-->
+                                        <a href="{{ route('product', ['id' => $product->id]) }}" class="text-reset">
                                         <div class="media align-items-lg-center flex-column flex-lg-row p-3">
                                             <div class="media-body order-2 order-lg-1">
                                                 <h5 class="mt-0 font-weight-bold mb-2">{{ $product->name }}</h5>
@@ -92,6 +93,7 @@
                                                 </div>
                                             </div><img src="{{ asset('storage/' . $product->thumbnail) }}" alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2">
                                         </div> <!-- End -->
+                                        </a>
                                     </li> <!-- End -->
                                     <!-- produk -->
                                     @endforeach
