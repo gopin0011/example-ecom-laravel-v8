@@ -21,4 +21,9 @@ class Cart extends Authenticatable
     protected $fillable = [
         'users_id', 'product_id', 'qty', 'total', 'price',
     ];
+
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'id', 'product_id');
+    }
 }

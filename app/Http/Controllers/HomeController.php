@@ -104,16 +104,10 @@ class HomeController extends Controller
     {
         $user = Auth::user();
 
-        // $query = DB::table('cart')
-        //     ->join('product', 'cart.product_id', '=', 'product.id')
-        //     ->select('*', 'cart.id as cartId')
-        //     ->where(['users_id' => $user->id, 'has_order' => 0]);
-        $query = Cart::select('*', 'cart.id as cartId')
-                    ->where(['users_id' => $user->id, 'has_order' => 0])
-                    ->join('product', 'cart.product_id', '=', 'product.id');
+        $query = Cart::with('product')->where(['users_id' => $user->id, 'has_order' => 0]);
         
         $product = $query->get();
-        
+
         $total = $query->sum('cart.total');
 
         return view('cart', [
@@ -150,23 +144,10 @@ class HomeController extends Controller
     {
         $user = Auth::user();
 
-        // $product = DB::table('cart')
-        //     ->join('product', 'cart.product_id', '=', 'product.id')
-        //     ->select('*', 'cart.id as cartId')
-        //     ->where(['users_id' => $user->id, 'has_order' => 0])
-        //     ->get();
-        $product = Cart::select('*', 'cart.id as cartId')
-                    ->join('product', 'cart.product_id', '=', 'product.id')
-                    ->where(['users_id' => $user->id, 'has_order' => 0])
-                    ->get();
-        
-        // $subTotal = DB::table('cart')
-        //     ->where(['users_id' => $user->id, 'has_order' => 0])
-        //     ->sum('total');
-
-        $subTotal = Cart::where(['users_id' => $user->id, 'has_order' => 0])
-                        ->sum('total');
-
+        $query = Cart::with('product')
+                    ->where(['users_id' => $user->id, 'has_order' => 0]);
+        $product = $query->get();
+        $subTotal = $query->sum('total');
         $userAddress = UsersAddress::where('users_id', $user->id)->first();
 
         $provinsi = $this->getProvinsi()->provinsi;
@@ -234,19 +215,10 @@ class HomeController extends Controller
         $orders->address = $request->address;
         $orders->prov = $request->prov;
         $orders->delivery_amount = ($orders->prov == 31 || $orders->prov == 32 || $orders->prov == 36) ? 20000:40000;
-        // $orders->sub_total = DB::table('cart')
-        //                         ->where(['users_id' => $user->id, 'has_order' => 0])
-        //                         ->sum('total');
         $orders->sub_total = Cart::where(['users_id' => $user->id, 'has_order' => 0])
                                 ->sum('total');
         $orders->total = ($orders->delivery_amount + $orders->sub_total);
         $orders->save();
-
-        // $carts = DB::table('cart')
-        //     ->join('product', 'cart.product_id', '=', 'product.id')
-        //     ->select('*', 'cart.id as cartId')
-        //     ->where(['users_id' => $user->id, 'has_order' => 0])
-        //     ->get();
         $carts = Cart::select('*', 'cart.id as cartId')
                     ->join('product', 'cart.product_id', '=', 'product.id')
                     ->where(['users_id' => $user->id, 'has_order' => 0])

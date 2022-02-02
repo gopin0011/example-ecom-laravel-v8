@@ -13,7 +13,7 @@
                     <div class="widget mb-3">
                         <h1 class="h6 pt-1 pb-3 mb-3 border-bottom"><b>Rincian Pemesanan</b></h1>
                         @foreach($carts as $product)
-                        <div class="d-flex align-items-center pb-2 border-bottom px-1 py-3"><a class="d-block flex-shrink-0" href="{{ route('product', ['id' => $product->id]) }}"><img src="{{ asset('storage/' . $product->thumbnail) }}" width="64" alt="Product"></a>
+                        <div class="d-flex align-items-center pb-2 border-bottom px-1 py-3"><a class="d-block flex-shrink-0" href="{{ route('product', ['id' => $product->id]) }}"><img src="{{ asset('storage/' . $product->product->thumbnail) }}" width="64" alt="Product"></a>
                         <div class="ps-2">
                             <h1 class="h6 widget-product-title"><a href="{{ route('product', ['id' => $product->id]) }}">{{$product->name}}</a></h1>
                             <div class="widget-product-meta"><span class="text-accent me-2">Rp. {{number_format($product->price)}}</span><span class="text-muted">x {{$product->qty}}</span></div>

@@ -208,14 +208,14 @@ a:hover {
                         <input type="hidden" name="id[{{$key}}]" value="{{ $product->cartId }}">
                         <div class="row border-top border-bottom">
                             <div class="row main align-items-center">
-                                <div class="col-2"><img class="img-fluid" src="{{ asset('storage/' . $product->thumbnail) }}"></div>
+                                <div class="col-2"><img class="img-fluid" src="{{ asset('storage/' . $product->product->thumbnail) }}"></div>
                                 <div class="col">
                                     <!-- <div class="row text-muted">Shirt</div> -->
                                     <div class="row text-muted">{{ $product->title }}</div>
                                 </div>
                                 <div class="col"><input class="form-control col-md-5 vcenter" type="number" id="quantity1" min="1" value="{{ $product->qty }}" name="qty[{{$key}}]"></div>
                                 <div class="col text-right">Rp. {{number_format($product->price)}}</div>
-                                <div class="col-sm-2"><a href="{{ route('cartProductDelete', [$product->cartId]) }}"><span class="close">&#10005;</span></a></div>
+                                <div class="col-sm-2"><a href="{{ route('cartProductDelete', [$product->id]) }}"><span class="close">&#10005;</span></a></div>
                             </div>
                         </div>
                         @endforeach
