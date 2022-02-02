@@ -219,8 +219,7 @@ class HomeController extends Controller
                                 ->sum('total');
         $orders->total = ($orders->delivery_amount + $orders->sub_total);
         $orders->save();
-        $carts = Cart::select('*', 'cart.id as cartId')
-                    ->join('product', 'cart.product_id', '=', 'product.id')
+        $carts = Cart::with('product')
                     ->where(['users_id' => $user->id, 'has_order' => 0])
                     ->get();
 
@@ -228,14 +227,14 @@ class HomeController extends Controller
         {
             $ordersDetail = new OrdersDetail();
             $ordersDetail->orders_id = $orders->id;
-            $ordersDetail->product_id = $cart->id;
+            $ordersDetail->product_id = $cart->product->id;
             $ordersDetail->users_id = Auth::user()->id;
             $ordersDetail->qty = $cart->qty;
-            $ordersDetail->product_name = $cart->name;
-            $ordersDetail->product_title = $cart->title;
-            $ordersDetail->product_description = $cart->description;
-            $ordersDetail->product_price = $cart->price;
-            $ordersDetail->product_thumbnail = $cart->thumbnail;
+            $ordersDetail->product_name = $cart->product->name;
+            $ordersDetail->product_title = $cart->product->title;
+            $ordersDetail->product_description = $cart->product->description;
+            $ordersDetail->product_price = $cart->product->price;
+            $ordersDetail->product_thumbnail = $cart->product->thumbnail;
             $ordersDetail->save();
 
             $oldCart = Cart::find($cart->cartId);
