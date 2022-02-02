@@ -237,7 +237,7 @@ class HomeController extends Controller
             $ordersDetail->product_thumbnail = $cart->product->thumbnail;
             $ordersDetail->save();
 
-            $oldCart = Cart::find($cart->cartId);
+            $oldCart = Cart::find($cart->id);
             $oldCart->has_order = 1;
             $oldCart->save();
         }
