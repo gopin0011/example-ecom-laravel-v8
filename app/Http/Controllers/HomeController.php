@@ -9,8 +9,11 @@ use App\Models\Cart;
 use App\Models\UsersAddress;
 use App\Models\Orders;
 use App\Models\OrdersDetail;
+use App\Models\CartProduct;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Crypt;
 
 class HomeController extends Controller
 {
@@ -26,8 +29,20 @@ class HomeController extends Controller
 
     public function __construct()
     {
-        $this->back = redirect()->getUrlGenerator()->previous();
-        // blade url()->previous()
+        // $this->back = redirect()->getUrlGenerator()->previous();
+        if (!Cookie::get('cart-secret-key'))
+        {
+            // \Illuminate\Support\Str::random(32)
+            $secretKey = md5(uniqid(rand(), true));
+            Cookie::queue(Cookie::make('cart-secret-key', $secretKey, (30*24*60*60)));
+            $cart = \App\Models\Cart::where('secret_key', $secretKey)->first();
+            if(!$cart)
+            {
+                $cart = new \App\Models\Cart;
+                $cart->secret_key = $secretKey;
+                $cart->save();
+            }
+        }
     }
 
     /**
@@ -61,99 +76,179 @@ class HomeController extends Controller
         ]);
     }
 
-    public function product(Product $id)
+    public function product(Product $product)
     {
-        $images = ProductImages::where('product_id', $id->id)->get();
+        $images = ProductImages::where('product_id', $product->id)->get();
 
         return view('product_detail', [
-            'product' => $id,
+            'product' => $product,
             'images' => $images,
             'back' => $this->back,
         ]);
     }
 
-    public function productAdd(Request $request, Product $id, $from = '')
+    public function productAdd(Request $request, Product $product, $from = '')
     {
+        $flashMessage = [];
+
         $user = Auth::user();
 
-        $product = Product::find($id->id);
-
-        $oldCart = Cart::where(['product_id' => $id->id, 'users_id' => $user->id, 'has_order' => 0])->first();
-        if($oldCart) 
+        $carts = Cart::with('cart_product')
+                    ->where('secret_key', Cookie::get('cart-secret-key'))
+                    ->where('has_order', 0);
+        if($user) 
         {
-            $oldCart->qty = $oldCart->qty + ($request->qty ? $request->qty : 1);
-            $oldCart->total = $oldCart->qty * $product->price;
-            $oldCart->price = $product->price;
-            $oldCart->save();
+            $carts->orWhere('users_id', $user->id);
         }
-        else 
-        {
-            $cart = new Cart();
-            $cart->users_id = $user->id;
-            $cart->product_id = $id->id;
-            $cart->qty = ($request->qty ? $request->qty : 1);
-            $cart->total = $cart->qty * $product->price;
-            $cart->price = $product->price;
-            $cart->save();
-        }
+        $carts = $carts->get();
 
-        return redirect()->back()->with('success', 'Success! Product Added');
+        // dd($cart);
+           
+        $cartProduct = CartProduct::whereIn('cart_id', function ($query) use ($carts){
+                                        foreach($carts as $cart)
+                                        {
+                                            $query->select('id')
+                                                ->from('cart')
+                                                ->where('cart_id', $cart->id);
+                                        }
+                                    })
+                                    ->where('product_id', $product->id)
+                                    ->first(); 
+        if(!$cartProduct)
+        {
+            $cartProduct = new CartProduct();
+            $cartProduct->cart_id = $carts[0]->id;
+            $cartProduct->product_id = $product->id;
+            $cartProduct->quantity = ($request->qty ? $request->qty : 1);
+            $cartProduct->total = $request->qty * $product->price;
+            $cartProduct->price = $product->price;
+            $cartProduct->save();
+            // Session::flash('success', 'Success! Product Added');
+            $flashMessage = ['success'=>'Success! Product Added'];
+        }
+        else
+        {
+            $cartProduct->quantity = $cartProduct->quantity+1;
+            $cartProduct->total = $cartProduct->quantity * $product->price;
+            $cartProduct->save();
+            $flashMessage = ['success'=>'Success! Quantity di tambah'];
+        }
+        
+        return redirect()->back()->with($flashMessage);
     }
 
     public function cart()
     {
         $user = Auth::user();
 
-        $query = Cart::with('product')->where(['users_id' => $user->id, 'has_order' => 0]);
-        
-        $product = $query->get();
+        $carts = Cart::with('cart_product.product')
+                    ->where('secret_key', Cookie::get('cart-secret-key'))
+                    ->where('has_order', 0);
+        if($user)
+        {
+            $carts->orWhere('users_id', $user->id);
+        }
+        $carts = $carts->get();
 
-        $total = $query->sum('cart.total');
+        $total = $carts->sum(function($carts){
+            return $carts->cart_product->sum('total');
+        });
+        // dd();
+
+        $items = $carts->sum(function($carts){
+            return $carts->cart_product->count();
+        });
 
         return view('cart', [
-            'products' => $product,
+            'carts' => $carts,
             'total' => $total,
+            'items' => $items,
         ]);
     }
 
     public function cartUpdate(Request $request)
     {
+        if($request->action === 'checkout')
+        {
+            $data = Crypt::encrypt([ 'params' => $request->id ]);
+            if(!Auth::check())
+            {
+                // dd($request->id);
+                // route('post.show', ['post' => 1])
+                return redirect()->route('doLogin', [ 'next' => route('cartCheckout', [ 'ref' => $data ]) ])->with('error', 'Kamu Harus Login Terlebih Dahulu');
+            }
+
+            return redirect()->route('cartCheckout', ['ref' => $data]);
+        }
+
         foreach ($request->id as $key => $value)
         {
-            $cart = Cart::find($value);
-            $product = Product::find($cart->product_id);
+            $cartProduct = CartProduct::find($value);
+            $product = Product::find($cartProduct->product_id);
 
-            $cart->qty = $request->qty[$key];
-            $cart->total = $cart->qty * $product->price;
-            $cart->price = $product->price;
-            $cart->save();
+            $cartProduct->quantity = $request->quantity[$key];
+            $cartProduct->total = $cartProduct->quantity * $product->price;
+            $cartProduct->price = $product->price;
+            $cartProduct->save();
         }
 
         return redirect()->back()->with('success', 'Success! Update Troli');
     }
 
-    public function cartProductDelete(Cart $id)
+    public function cartCheckout(Request $request)
     {
-        $cart = Cart::find($id->id);
-        $cart->delete();
+        $data = Crypt::decrypt($request->ref);
+        $cartProductId = $data['params'];
+
+        $carts = Cart::whereHas('cart_product', function($q) use ($cartProductId){
+            $q->whereIn('cart_product.id', $cartProductId);
+        })
+        ->with('cart_product.product')
+        ->where('has_order', 0)
+        ->get();
+
+        $user = Auth::user();
+        
+        $userAddress = UsersAddress::where('users_id', $user->id)->first();
+
+        $provinsi = $this->getProvinsi()->provinsi;
+        $subTotal = 0;
+
+        return view('checkout', [
+            'carts' => $carts,
+            'subTotal' => $subTotal,
+            'userAddress' => $userAddress,
+            'provinsi' => $provinsi,
+        ]);
+    }
+
+    public function cartProductDelete(CartProduct $cartProduct)
+    {
+        $cartProduct->delete();
 
         return redirect()->back()->with('success', 'Success! Update Troli');
     }
 
-    public function checkout()
+    public function checkout(Request $request)
     {
         $user = Auth::user();
 
-        $query = Cart::with('product')
-                    ->where(['users_id' => $user->id, 'has_order' => 0]);
-        $product = $query->get();
-        $subTotal = $query->sum('total');
+        $cart = Cart::withAndWhereHas('cart_product', function($query) use ($request){
+            $query->whereIn('cart_product.id', $request->id);
+        })
+        ->with('cart_product.product')
+        ->where('has_order', 0)
+        ->get();
+
+        dd($cart);
+        $subTotal = $cart->cart_product->sum('total');
+
         $userAddress = UsersAddress::where('users_id', $user->id)->first();
 
         $provinsi = $this->getProvinsi()->provinsi;
 
         return view('checkout', [
-            'carts' => $product,
+            'carts' => $cart->cart_product,
             'subTotal' => $subTotal,
             'userAddress' => $userAddress,
             'provinsi' => $provinsi,

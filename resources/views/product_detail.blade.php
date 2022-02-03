@@ -120,7 +120,7 @@
                         <div class="product-badge product-available mt-n1"><i class="ci-security-check"></i>{{$product->is_available == 1 ? 'Produk Tersedia' : 'Produk Tidak Tersedia'}}</div>
                       </div>
                       <div class="d-flex align-items-center pt-2 pb-4">
-                        <form method="POST" action="{{ route('productAdd', ['id' => $product->id]) }}">
+                        <form method="POST" action="{{ route('productAdd', ['product' => $product->id]) }}">
                         @csrf
                             <div class="d-flex align-items-center pt-2 pb-4">
                                 <select class="form-select me-3" style="width: 5rem;" name="qty">

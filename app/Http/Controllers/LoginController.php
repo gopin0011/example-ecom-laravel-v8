@@ -7,19 +7,35 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Auth as UiAuth;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Redirect;
 
 class LoginController extends Controller
 {
     use RedirectsUsers, UiAuth\ThrottlesLogins;
+
+    public function __construct()
+    {
+        
+    }
 
     /**
      * Show the application's login form.
      *
      * @return \Illuminate\View\View
      */
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
-        return view('auth.login');
+        $url = $request->get('next');
+        // if(!session()->has('url.intended'))
+        // session(['url.intended' => url()->previous()]);
+        if(!session()->has('url.intended'))
+        {
+            session( [ 'url.intended' => url($url) ] );
+        }
+
+        return view( 'auth.login' );
     }
 
     /**
@@ -137,8 +153,13 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        // dd($user);
-        notify()->success('Hi '.$user->name.', Selamat Datang Di Website Kami!');
+        // notify()->success('Hi '.$user->name.', Selamat Datang Di Website Kami!');
+        $cart = \App\Models\Cart::where(['secret_key' => Cookie::get('cart-secret-key'), 'has_order' => 0])->whereNull('users_id')->first();
+        if($cart)
+        {
+            $cart->users_id = $user->id;
+            $cart->save();
+        }
     }
 
     /**
@@ -198,6 +219,7 @@ class LoginController extends Controller
     protected function loggedOut(Request $request)
     {
         //
+        // Cookie::queue(Cookie::forget('cart-secret-key'));
     }
 
     /**

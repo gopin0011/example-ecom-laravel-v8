@@ -19,11 +19,21 @@ class Cart extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'users_id', 'product_id', 'qty', 'total', 'price',
+        'users_id', 'product_id', 'secret_key'
     ];
 
-    public function product()
+    protected $casts = [
+        // 'items' => 'object',
+    ];
+
+    public function cart_product()
     {
-        return $this->hasOne(Product::class, 'id', 'product_id');
+        return $this->hasMany(CartProduct::class, 'cart_id', 'id');
     }
+
+    public function scopeWithAndWhereHas($query, $relation, $constraint){
+        return $query->whereHas($relation, $constraint)
+                     ->with([$relation => $constraint]);
+    }
+
 }

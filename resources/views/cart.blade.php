@@ -188,7 +188,10 @@ a:hover {
         {{ Breadcrumbs::render('cart') }}
     </div>
     <div style="margin-top:20px;"></div>
+
     <!-- <div class="bg-light shadow-lg "> -->
+    <form method="post" action="{{ route('cartUpdate') }}">
+        <!-- <input type="hidden" name="_method" value="put"> -->
         <div class="card">
             <div class="row">
                 <div class="col-md-8 cart rounded-3">
@@ -197,30 +200,29 @@ a:hover {
                             <div class="col">
                                 <h4><b>Troli</b></h4>
                             </div>
-                            <div class="col align-self-center text-right text-muted">{{count($products)}} items</div>
+                            <div class="col align-self-center text-right text-muted">{{$items}} items</div>
                         </div>
                     </div>
-                    @if(count($products))
-                    <form method="post" action="{{ route('cartUpdate') }}">
-                        <input type="hidden" name="_method" value="put">
+                    @if(1==1)
                         @csrf
-                        @foreach ($products as $key => $product)
-                        <input type="hidden" name="id[{{$key}}]" value="{{ $product->cartId }}">
-                        <div class="row border-top border-bottom">
-                            <div class="row main align-items-center">
-                                <div class="col-2"><img class="img-fluid" src="{{ asset('storage/' . $product->product->thumbnail) }}"></div>
-                                <div class="col">
-                                    <!-- <div class="row text-muted">Shirt</div> -->
-                                    <div class="row text-muted">{{ $product->title }}</div>
+                        @foreach($carts as $key => $cart)
+                            @foreach($cart->cart_product as $keyCartProduct => $cartProduct)
+                            <input type="hidden" name="id[]" value="{{ $cartProduct->id }}">
+                            <div class="row border-top border-bottom">
+                                <div class="row main align-items-center">
+                                    <div class="col-2"><img class="img-fluid" src="{{ asset('storage/' . $cartProduct->product->thumbnail) }}"></div>
+                                    <div class="col">
+                                        <!-- <div class="row text-muted">Shirt</div> -->
+                                        <div class="row text-muted">{{ $cartProduct->product->title }}</div>
+                                    </div>
+                                    <div class="col"><input class="form-control col-md-5 vcenter" type="number" id="quantity1" min="1" value="{{ $cartProduct->quantity }}" name="quantity[]"></div>
+                                    <div class="col text-right">Rp. {{number_format($cartProduct->product->price)}}</div>
+                                    <div class="col-sm-2"><a href="{{ route('cartProductDelete', [$cartProduct->id]) }}"><span class="close">&#10005;</span></a></div>
                                 </div>
-                                <div class="col"><input class="form-control col-md-5 vcenter" type="number" id="quantity1" min="1" value="{{ $product->qty }}" name="qty[{{$key}}]"></div>
-                                <div class="col text-right">Rp. {{number_format($product->price)}}</div>
-                                <div class="col-sm-2"><a href="{{ route('cartProductDelete', [$product->id]) }}"><span class="close">&#10005;</span></a></div>
                             </div>
-                        </div>
+                            @endforeach
                         @endforeach
-                        <button class="btn btn-primary" type="submit">Update Troli</button>
-                    </form>
+                        <button class="btn btn-primary" type="submit" name="action" value="updateTroli">Update Troli</button>
                     @else
                     <div class="col align-self-center text-center text-muted">
                         <h1 class="h6">Belum Ada Product</h1>
@@ -234,25 +236,26 @@ a:hover {
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col" style="padding-left:0;">ITEMS {{count($products)}}</div>
+                        <div class="col" style="padding-left:0;">ITEMS {{$items}}</div>
                         <!-- <div class="col text-right">&euro; 132.00</div> -->
                     </div>
                     <div class="row" style="padding: 2vh 0;">
                         <div class="col">TOTAL PRICE</div>
                         <div class="col text-right">Rp. {{number_format($total)}}</div>
                     </div>
-                    <form>
+                    <!-- <form> -->
                     <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
                         <!-- <p>SHIPPING</p> <select>
                             <option class="text-muted">Standard-Delivery- &euro;5.00</option>
                         </select> -->
                         <p>GIVE CODE</p> <input id="code" placeholder="Enter your code">
                     </div>
-                    </form>
-                     <a class="btn btn-success {{count($products) ? '':'disabled'}}" href="{{ route('checkout') }}">Checkout</a>
+                    <!-- </form> -->
+                    <button class="btn btn-success" type="submit" name="action" value="checkout" {{$items > 0 ? '':'disabled'}}>Checkout</button>
                 </div>
             </div>
         </div>
     <!-- </div> -->
+    </form>
 </div>
 @endsection

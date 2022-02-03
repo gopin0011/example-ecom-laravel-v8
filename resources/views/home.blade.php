@@ -76,7 +76,7 @@
                                     <!-- list group item-->
                                     <li class="list-group-item">
                                         <!-- Custom content-->
-                                        <a href="{{ route('product', ['id' => $product->id]) }}" class="text-reset">
+                                        <a href="{{ route('product', ['product' => $product->id]) }}" class="text-reset">
                                         <div class="media align-items-lg-center flex-column flex-lg-row p-3">
                                             <div class="media-body order-2 order-lg-1">
                                                 <h5 class="mt-0 font-weight-bold mb-2">{{ $product->name }}</h5>

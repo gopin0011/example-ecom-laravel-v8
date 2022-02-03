@@ -23,22 +23,23 @@ Route::post('/search', [App\Http\Controllers\HomeController::class, 'index'])->n
 
 Auth::routes();
 
-// Route::get('/login', [App\Http\Controllers\LoginController::class, 'showLoginForm'])->name('login');
-
+Route::get('/login', [App\Http\Controllers\LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [App\Http\Controllers\LoginController::class, 'login'])->name('doLogin');
+Route::post('/logout', [App\Http\Controllers\LoginController::class, 'logout'])->name('logout');
 
-Route::get('/product/{id}', [App\Http\Controllers\HomeController::class, 'product'])->name('product');
-
+Route::get('/product/{product}', [App\Http\Controllers\HomeController::class, 'product'])->name('product');
+Route::post('/product/{product}', [App\Http\Controllers\HomeController::class, 'productAdd'])->name('productAdd');
 Route::get('/productAdd/{id}/{from}', [App\Http\Controllers\HomeController::class, 'productAdd'])->name('productAddFromHome');
 
 Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index'])->name('homeAdmin');
 
+Route::get('/cart', [App\Http\Controllers\HomeController::class, 'cart'])->name('cart');
+Route::post('/cart', [App\Http\Controllers\HomeController::class, 'cartUpdate'])->name('cartUpdate');
+Route::get('/cartDelete/{cartProduct}', [App\Http\Controllers\HomeController::class, 'cartProductDelete'])->name('cartProductDelete');
+    
 Route::group(['middleware' => 'auth'], function()
 {
-    Route::post('/product/{id}', [App\Http\Controllers\HomeController::class, 'productAdd'])->name('productAdd');
-    Route::get('/cart', [App\Http\Controllers\HomeController::class, 'cart'])->name('cart');
-    Route::put('/cart', [App\Http\Controllers\HomeController::class, 'cartUpdate'])->name('cartUpdate');
-    Route::get('/cartDelete/{id}', [App\Http\Controllers\HomeController::class, 'cartProductDelete'])->name('cartProductDelete');
+    Route::get('/cart/checkout', [App\Http\Controllers\HomeController::class, 'cartCheckout'])->name('cartCheckout');
     Route::get('/checkout', [App\Http\Controllers\HomeController::class, 'checkout'])->name('checkout');
     Route::post('/checkout', [App\Http\Controllers\HomeController::class, 'checkoutCreate'])->name('checkoutCreate');
     Route::post('/paymentCreate/{order}', [App\Http\Controllers\ProfileController::class, 'paymentCreate'])->name('paymentCreate');
