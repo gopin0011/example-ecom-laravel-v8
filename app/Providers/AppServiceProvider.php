@@ -28,9 +28,5 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('money', function ($amount) {
             return "<?php echo number_format($amount); ?>";
         });
-        Blade::directive('bladeEncrypt', function ($data) {
-            // $q ='dudul';
-            return "<?php echo 'dudul'; ?>";
-        });
     }
 }
